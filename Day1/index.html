@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dynamic Table</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    input[type="text"], input[type="email"], input[type="number"] {
+      width: 90%;
+      padding: 4px;
+    }
+    button {
+      margin: 0 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Dynamic Table with Add/Edit/Delete</h2>
+
+  <button onclick="addRow()">Add Row</button>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Age</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic rows go here -->
+    </tbody>
+  </table>
+
+  <script>
+    function addRow() {
+      const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+
+      newRow.innerHTML = `
+        <td><input type="text" placeholder="Enter name"></td>
+        <td><input type="email" placeholder="Enter email"></td>
+        <td><input type="number" placeholder="Enter age"></td>
+        <td>
+          <button onclick="editRow(this)">Edit</button>
+          <button onclick="deleteRow(this)">Delete</button>
+        </td>
+      `;
+    }
+
+    function editRow(button) {
+      const row = button.parentNode.parentNode;
+      const inputs = row.querySelectorAll('input');
+
+      inputs.forEach(input => input.removeAttribute('readonly'));
+
+      button.textContent = "Save";
+      button.onclick = function () {
+        save(button);
+      };
+    }
+
+    function save(button) {
+      const row = button.parentNode.parentNode;
+      const inputs = row.querySelectorAll('input');
+
+      const data = {
+        name: inputs[0].value,
+        email: inputs[1].value,
+        age: inputs[2].value
+      };
+
+      console.log("Saved Data:", data);
+
+      inputs.forEach(input => input.setAttribute('readonly', true));
+
+      button.textContent = "Edit";
+      button.onclick = function () {
+        editRow(button);
+      };
+    }
+
+    function deleteRow(button) {
+      const row = button.parentNode.parentNode;
+      row.remove();
+    }
+  </script>
+
+</body>
+</html>

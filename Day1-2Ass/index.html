@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pexels Masonry Gallery</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h2>Pexels Masonry Gallery</h2>
+  <div id="gallery"></div>
+  <div id="loader">Loading more photos...</div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="hidden">
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="">
+    </div>
+  </div>
+
+  <script>
+    const API_KEY = 'eIq0sFXyVweL4C2zYOruJzWdEujVzFVG8GiVMjGdRgsaYKjXhXK2oiGg';
+    let page = 1;
+    const perPage = 10;
+    let isLoading = false;
+
+    function loadPhotos() {
+      if (isLoading) return;
+      isLoading = true;
+      document.getElementById('loader').style.display = 'block';
+
+      fetch(`https://api.pexels.com/v1/curated?page=${page}&per_page=${perPage}`, {
+        headers: { Authorization: API_KEY }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const gallery = document.getElementById('gallery');
+
+        data.photos.forEach(photo => {
+          const card = document.createElement('div');
+          card.className = 'photo-card skeleton';
+
+          const img = document.createElement('img');
+          img.src = photo.src.large2x;
+          img.alt = photo.alt || photo.photographer;
+
+          const info = document.createElement('div');
+          info.className = 'photo-info';
+        //   info.innerHTML = `
+        //     <a href="${photo.photographer_url}" target="_blank">${photo.photographer}</a><br>
+        //     <a href="${photo.url}" target="_blank">View on Pexels</a>
+        //   `;
+
+          // Append after 3s to simulate loading
+          img.onload = () => {
+            setTimeout(() => {
+              card.appendChild(img);
+            //   card.appendChild(info);
+              card.classList.remove('skeleton');
+
+              // Lightbox click
+              img.addEventListener('click', () => {
+                document.getElementById('lightbox-img').src = img.src;
+                document.getElementById('lightbox').classList.remove('hidden');
+              });
+            }, 1000);
+          };
+
+          gallery.appendChild(card);
+        });
+
+        page++;
+        isLoading = false;
+        document.getElementById('loader').style.display = 'none';
+      })
+      .catch(err => {
+        console.error("Error loading photos:", err);
+        isLoading = false;
+        document.getElementById('loader').innerText = 'Error loading more photos.';
+      });
+    }
+
+    loadPhotos();
+
+    window.addEventListener('scroll', () => {
+      const scrollBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+      if (scrollBottom && !isLoading) {
+        loadPhotos();
+      }
+    });
+
+    // Close lightbox by clicking outside the image
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox') {
+        document.getElementById('lightbox').classList.add('hidden');
+      }
+    });
+  </script>
+
+</body>
+</html>
